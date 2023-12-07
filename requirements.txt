@@ -1,0 +1,17 @@
+psycopg2
+pydap
+netCDF4
+numpy
+pandas
+scipy
+requests
+h5py
+lxml
+python-dateutil
+pydap
+gdal
+bs4
+climateserv
+xarray
+numba
+rioxarray
