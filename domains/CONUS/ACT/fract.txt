@@ -1,7 +1,7 @@
 ncols         79
 nrows         82
-xllcorner     -87.95
-yllcorner     31.05
+xllcorner     -87.925
+yllcorner     31.075
 cellsize      0.05
 NODATA_value  -9999
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.5 0.6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
