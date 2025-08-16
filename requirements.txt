@@ -15,3 +15,8 @@ climateserv
 xarray
 numba
 rioxarray
+dataretrieval
+rasterio
+matplotlib
+geopandas
+cartopy
