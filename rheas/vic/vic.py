@@ -693,27 +693,30 @@ class VIC:
         AUG 2021
         SERVIR SCO
         """
+        import shutil 
+
         print('VIC Routing')
         routexe = 'external/vic/routing/rout'
         rout_conf_path = routfilepath
         mod_path = self.model_path.split('.')[-1]
-        mod_path = '/home/mishrav/Documents/RHEAS/'+mod_path
+        print(mod_path)
+        #mod_path = '/home/mishrav/Documents/RHEAS/'+mod_path
         rout_out_path = mod_path+'/rout/'
         rout_flx_path = mod_path+'/output/fluxes_'
-        
+
         rcnf = open(rout_conf_path+'/rout.conf','w')
         rcnf.write('#INPUT FILE FOR THE {0} BASIN\n'.format(self.name))
         rcnf.write('#PATH OF THE FLOW DIRECTION FILE\n')
         rcnf.write(rout_conf_path + '/fdr.txt\n')
         rcnf.write('#NAME OF FLOW VELOCITY FILE\n')
         rcnf.write('.false.\n')
-        rcnf.write('.35\n')
+        rcnf.write('2.0\n')
         rcnf.write('#NAME OF DIFFUSION FILE\n')
         rcnf.write('.false.\n')
-        rcnf.write('1200\n')
+        rcnf.write('2500\n')
         rcnf.write('#NAME OF XMASK FILE\n')
         rcnf.write('.false.\n')
-        rcnf.write('7000\n')
+        rcnf.write('7500\n')
         rcnf.write('#NAME OF FRACTION FILE\n')
         rcnf.write('.true.\n')
         rcnf.write(rout_conf_path + '/fract.txt\n')
@@ -734,7 +737,10 @@ class VIC:
 
         if not os.path.exists(rout_out_path): 
             os.makedirs(rout_out_path)   
-        
+
+        if os.path.exists(rout_conf_path+'GaugeList.txt'):
+          shutil.copy(rout_conf_path+'GaugeList.txt',rout_out_path)
+
         os.system(routexe+' '+rout_conf_path+'rout.conf')
 
     def run_parallel(self, vicexec, ncores):
