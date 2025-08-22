@@ -32,20 +32,6 @@ Plot results and statistics for
 """
 
 
-#import matplotlib.pyplot as plt
-#import glob, os, sys
-#import seaborn as sns
-#import dataretrieval as usgs
-#import pandas as pd
-#import numpy as np
-#import geopandas as gpd
-#import rasterio as rio
-#from datetime import date, datetime, timedelta
-#from matplotlib import colors
-#from rasterio.io import MemoryFile
-#import requests
-
-
 def fetch_nass_yields_by_state(state_alpha, year):
     
     import requests
@@ -82,8 +68,7 @@ def fetch_nass_yields_by_state(state_alpha, year):
 
 def get_fips_from_latlon(lat, lon):
     import requests
-    
-    
+       
     url = f"https://geo.fcc.gov/api/census/block/find?latitude={lat}&longitude={lon}&format=json"
     response = requests.get(url).json()
     fips = response['County']['FIPS']
@@ -95,9 +80,6 @@ def get_fips_from_latlon(lat, lon):
 def rast_read(infile):
     import rasterio as rio
     import numpy as np    
-    import warnings
-        
-    warnings.filterwarnings("ignore")
         
     with rio.open(infile) as src:
         d = src.read(1)
@@ -108,10 +90,7 @@ def rast_read(infile):
 def calc_stats(flist, outf):
     import rasterio as rio
     import numpy as np
-    import warnings
-    
-    warnings.filterwarnings("ignore")
-    
+
     var = 'x'
     with rio.open(flist[0]) as src:
         profile = src.profile
@@ -142,9 +121,6 @@ def res_analysis(self, vic=False,dssat=False, rout = False):
     from matplotlib import colors
     from rasterio.io import MemoryFile
     import requests
-    import warnings
-    
-    warnings.filterwarnings("ignore", message=".*CPLE_AppDefined.*")
 
     
     if vic ==None and dssat == None:
@@ -508,6 +484,7 @@ def res_analysis(self, vic=False,dssat=False, rout = False):
             
             tmp_dir = tmppath+'/rout/'
             glist_file =  tmp_dir+'/GaugeList.txt'
+
             if os.path.exists(glist_file):
                 glist = pd.read_table(glist_file, header = None, sep = '\s+')
                 for i in range(len(glist)):
@@ -515,7 +492,10 @@ def res_analysis(self, vic=False,dssat=False, rout = False):
                     gauge = glist[1][i]
                     
                     sflow_file = tmp_dir+point+'.day'
+                    #print(sflow_file)
+
                     if os.path.exists(sflow_file):
+                        
                         sf = pd.read_table(sflow_file, header=None,sep= '\s+')
                         dd = []
                         for i in range(0,len(sf)):
@@ -534,11 +514,12 @@ def res_analysis(self, vic=False,dssat=False, rout = False):
                         
                         mindate = sf.index.min()
                         maxdate = sf.index.max()
-                        
+
                         #getting USGS gauge data 
                         site = '0'+str(gauge)
                         df = nwis.get_record(sites=site, service='dv', start=mindate.strftime('%Y-%m-%d'), 
                                          end=maxdate.strftime('%Y-%m-%d'),parameterCd= '00060')
+                        
                         if len(df)>0:
                             if '00060_Mean' in df.columns:
                                 obs = df['00060_Mean']
