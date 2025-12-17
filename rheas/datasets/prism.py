@@ -24,7 +24,7 @@ table = {"ppt": "precip.prism", "tmax": "tmax.prism", "tmin": "tmin.prism"}
 
 
 def dates(dbname):
-    dts = datasets.dates(dbname, table['ppt'])
+    dts = datasets.dates(dbname, table['ppt'])#---------needs tmin, tmax?
     return dts
 
 
@@ -35,31 +35,48 @@ def _downloadVariable(varname, dbname, dts, bbox):
     url = "prism.oregonstate.edu"
     ftp = FTP(url)
     ftp.login()
-    ftp.cwd("daily/{0}".format(varname))
+    ftp.cwd(f"/time_series/us/an/4km/{varname}/daily/")
+    print(ftp.dir())
+
+    #ftp.cwd("daily/{0}".format(varname)) ---------original
     outpath = tempfile.mkdtemp()
-    years = list(set([t.year for t in dts]))
+    print(outpath)
+
+    years = np.sort(list(set([t.year for t in dts])))
     print(years)
-    for yr in range(years[0],years[1]+1):
-      print(yr)
       
     for yr in range(years[0],years[1]+1):
         ftp.cwd("{0}".format(yr))
-        filenames = [f for f in ftp.nlst() if datetime.strptime(f.split("_")[-2], "%Y%m%d") >= dts[0] and datetime.strptime(f.split("_")[-2], "%Y%m%d") <= dts[-1]]
+        full_flist = ftp.nlst()
+        filenames = []
+        for f in full_flist:
+            tmp = f.split('_')[-1].split('.')[0]
+            if datetime.strptime(tmp,"%Y%m%d") >= dts[0] and datetime.strptime(tmp,'%Y%m%d')<=dts[-1]:
+                filenames.append(f)
+
+        #filenames = [f for f in ftp.nlst() if datetime.strptime(f.split("_")[-1], "%Y%m%d") >= dts[0] and datetime.strptime(f.split("_")[-1], "%Y%m%d") <= dts[-1]]
         filename = np.sort(filenames)
-        for fname in filenames:
-            dt = datetime.strptime(fname.split("_")[-2], "%Y%m%d")
+
+        for fname in filename:
+            print(fname)
+            dt = datetime.strptime(fname.split("_")[-1].split('.')[0], "%Y%m%d")
+            print(dt)
+
             with open("{0}/{1}".format(outpath, fname), 'wb') as f:
                 ftp.retrbinary("RETR {0}".format(fname), f.write)
             if fname.endswith("zip"):
                 fz = zipfile.ZipFile("{0}/{1}".format(outpath, fname))
                 for ls in fz.namelist():
-                    if ls[-4:] == '.bil':
+                    if ls[-4:] == '.tif':
                         lfilename = ls
                 #lfilename = filter(lambda s: s.endswith("bil"), fz.namelist())[0]
                 fz.extractall(outpath)
-            else:
-                lfilename = fname
-            tfilename = lfilename.replace(".bil", ".tif")
+            #else:
+            #    lfilename = fname[:-4]
+            #tfilename = lfilename.replace(".bil", ".tif")
+            tfilename = fname.replace('.zip','_bb.tif')
+            print(tfilename)
+
             if bbox is not None:
                 proc = subprocess.Popen(["gdal_translate", "-projwin", "{0}".format(bbox[0]), "{0}".format(bbox[3]), "{0}".format(bbox[2]), "{0}".format(bbox[1]), "{0}/{1}".format(outpath, lfilename), "{0}/{1}".format(outpath, tfilename)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                 out, err = proc.communicate()
