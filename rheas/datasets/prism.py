@@ -8,9 +8,9 @@
 """
 
 
-import logging
+import logging, os
 import subprocess
-import tempfile
+import tempfile, glob
 import zipfile
 import numpy as np
 from datetime import datetime
@@ -83,8 +83,13 @@ def _downloadVariable(varname, dbname, dts, bbox):
                 log.debug(out)
                 #dbio.writeGeotif(lat, lon, res, data, tfilename)
                 dbio.ingest(dbname, "{0}/{1}".format(outpath, tfilename), dt, table[varname], True)
+                files2rm = glob.glob(outpath+'/*')
+                if len(files2rm)>0:
+                  for file2rm in files2rm:
+                    os.remove(file2rm)
             else:
                 dbio.ingest(dbname, "{0}/{1}".format(outpath, lfilename), dt, table[varname], True)
+                os.remove(outpath+'/'+lfilename)
         ftp.cwd("..")
 
 
